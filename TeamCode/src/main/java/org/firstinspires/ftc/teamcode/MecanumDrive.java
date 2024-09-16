@@ -5,7 +5,9 @@ import androidx.annotation.NonNull;
 import com.acmerobotics.dashboard.canvas.Canvas;
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
-import com.acmerobotics.roadrunner.*;
+import com.acmerobotics.roadrunner.AccelConstraint;
+import com.acmerobotics.roadrunner.Action;
+import com.acmerobotics.roadrunner.Actions;
 import com.acmerobotics.roadrunner.AngularVelConstraint;
 import com.acmerobotics.roadrunner.DualNum;
 import com.acmerobotics.roadrunner.HolonomicController;
@@ -14,13 +16,20 @@ import com.acmerobotics.roadrunner.MinVelConstraint;
 import com.acmerobotics.roadrunner.MotorFeedforward;
 import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.Pose2dDual;
+import com.acmerobotics.roadrunner.PoseVelocity2d;
+import com.acmerobotics.roadrunner.PoseVelocity2dDual;
 import com.acmerobotics.roadrunner.ProfileAccelConstraint;
+import com.acmerobotics.roadrunner.ProfileParams;
+import com.acmerobotics.roadrunner.Rotation2d;
 import com.acmerobotics.roadrunner.Time;
 import com.acmerobotics.roadrunner.TimeTrajectory;
 import com.acmerobotics.roadrunner.TimeTurn;
 import com.acmerobotics.roadrunner.TrajectoryActionBuilder;
+import com.acmerobotics.roadrunner.TrajectoryBuilderParams;
 import com.acmerobotics.roadrunner.TurnConstraints;
 import com.acmerobotics.roadrunner.Twist2dDual;
+import com.acmerobotics.roadrunner.Vector2d;
+import com.acmerobotics.roadrunner.Vector2dDual;
 import com.acmerobotics.roadrunner.VelConstraint;
 import com.acmerobotics.roadrunner.ftc.DownsampledWriter;
 import com.acmerobotics.roadrunner.ftc.Encoder;
@@ -46,7 +55,6 @@ import org.firstinspires.ftc.teamcode.messages.MecanumCommandMessage;
 import org.firstinspires.ftc.teamcode.messages.MecanumLocalizerInputsMessage;
 import org.firstinspires.ftc.teamcode.messages.PoseMessage;
 
-import java.lang.Math;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
@@ -63,14 +71,14 @@ public final class MecanumDrive {
                 RevHubOrientationOnRobot.UsbFacingDirection.FORWARD;
 
         // drive model parameters
-        public double inPerTick = 1;
-        public double lateralInPerTick = inPerTick;
-        public double trackWidthTicks = 0;
+        public double inPerTick = 0.00293471163;
+        public double lateralInPerTick = 0.0023140352231457452;
+        public double trackWidthTicks = 4740.138456409962;
 
         // feedforward parameters (in tick units)
-        public double kS = 0;
-        public double kV = 0;
-        public double kA = 0;
+        public double kS = 1.3492703994410982;
+        public double kV = 0.0003934903429261099;
+        public double kA = 0.00015;
 
         // path profile parameters (in inches)
         public double maxWheelVel = 50;
@@ -217,10 +225,10 @@ public final class MecanumDrive {
 
         // TODO: make sure your config has motors with these names (or change them)
         //   see https://ftc-docs.firstinspires.org/en/latest/hardware_and_software_configuration/configuring/index.html
-        leftFront = hardwareMap.get(DcMotorEx.class, "leftFront");
-        leftBack = hardwareMap.get(DcMotorEx.class, "leftBack");
-        rightBack = hardwareMap.get(DcMotorEx.class, "rightBack");
-        rightFront = hardwareMap.get(DcMotorEx.class, "rightFront");
+        leftFront = hardwareMap.get(DcMotorEx.class, "frontLeft");
+        leftBack = hardwareMap.get(DcMotorEx.class, "backLeft");
+        rightBack = hardwareMap.get(DcMotorEx.class, "backRight");
+        rightFront = hardwareMap.get(DcMotorEx.class, "frontRight");
 
         leftFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         leftBack.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -230,6 +238,10 @@ public final class MecanumDrive {
         // TODO: reverse motor directions if needed
         //   leftFront.setDirection(DcMotorSimple.Direction.REVERSE);
 
+        leftFront.setDirection(DcMotorSimple.Direction.REVERSE);
+        leftBack.setDirection(DcMotorSimple.Direction.REVERSE);
+
+
         // TODO: make sure your config has an IMU with this name (can be BNO or BHI)
         //   see https://ftc-docs.firstinspires.org/en/latest/hardware_and_software_configuration/configuring/index.html
         lazyImu = new LazyImu(hardwareMap, "imu", new RevHubOrientationOnRobot(
@@ -237,7 +249,7 @@ public final class MecanumDrive {
 
         voltageSensor = hardwareMap.voltageSensor.iterator().next();
 
-        localizer = new DriveLocalizer();
+        localizer = new ThreeDeadWheelLocalizer(hardwareMap, PARAMS.inPerTick);
 
         FlightRecorder.write("MECANUM_PARAMS", PARAMS);
     }

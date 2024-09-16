@@ -17,10 +17,8 @@ import com.qualcomm.robotcore.hardware.DigitalChannel;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-import org.firstinspires.ftc.robotcore.external.hardware.camera.BuiltinCameraDirection;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.vision.VisionPortal;
-//import org.firstinspires.ftc.vision.tfod.TfodProcessor;
 import org.openftc.easyopencv.OpenCvCameraFactory;
 import org.openftc.easyopencv.OpenCvCameraRotation;
 
@@ -42,6 +40,8 @@ public abstract class AutoMaster extends OpMode {
     IntakeServo intakeServo = null;
 
     DigitalChannel limitSwitch = null;
+
+    LimeLight limeLight = null;
 
     //public DcMotorEx lift = null;
 
