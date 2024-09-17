@@ -9,6 +9,8 @@ public class LimeLight {
     public LimeLight(HardwareMap hardwareMap)
     {
         limelight = hardwareMap.get(Limelight3A.class, "limelight");
+
+        //pipeline 0 is red, 1 is yellow, 2 is blue
     }
 
 }
