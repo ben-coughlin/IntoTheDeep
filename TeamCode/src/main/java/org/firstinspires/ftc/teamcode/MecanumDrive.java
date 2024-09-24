@@ -1,5 +1,11 @@
 package org.firstinspires.ftc.teamcode;
 
+import static org.firstinspires.ftc.teamcode.MovementVars.movement_turn;
+import static org.firstinspires.ftc.teamcode.MovementVars.movement_x;
+import static org.firstinspires.ftc.teamcode.MovementVars.movement_y;
+
+import android.os.SystemClock;
+
 import androidx.annotation.NonNull;
 
 import com.acmerobotics.dashboard.canvas.Canvas;
@@ -253,6 +259,65 @@ public final class MecanumDrive {
 
         FlightRecorder.write("MECANUM_PARAMS", PARAMS);
     }
+    public void hardStopMotors() {
+        leftFront.setPower(0);
+        leftBack.setPower(0);
+        rightBack.setPower(0);
+        rightFront.setPower(0);
+    }
+
+    private long lastUpdateTime = 0;
+
+    public void stopAllMovementDirectionBased() {
+        movement_x = 0;
+        movement_y = 0;
+        movement_turn = 0;
+
+        applyMovementDirectionBased();
+    }
+
+    public void applyMovementDirectionBased() {
+        long currTime = SystemClock.uptimeMillis();
+        if (currTime - lastUpdateTime < 16) {
+            return;
+        }
+        lastUpdateTime = currTime;
+
+        double fl_power_raw = movement_y - movement_turn + movement_x * 1.5;
+        double bl_power_raw = movement_y - movement_turn - movement_x * 1.5;
+        double br_power_raw = movement_y + movement_turn + movement_x * 1.5;
+        double fr_power_raw = movement_y + movement_turn - movement_x * 1.5;
+
+        //find the maximum of the powers
+        double maxRawPower = Math.abs(fl_power_raw);
+        if (Math.abs(bl_power_raw) > maxRawPower) {
+            maxRawPower = Math.abs(bl_power_raw);
+        }
+        if (Math.abs(br_power_raw) > maxRawPower) {
+            maxRawPower = Math.abs(br_power_raw);
+        }
+        if (Math.abs(fr_power_raw) > maxRawPower) {
+            maxRawPower = Math.abs(fr_power_raw);
+        }
+
+        //if the maximum is greater than 1, scale all the powers down to preserve the shape
+        double scaleDownAmount = 1.0;
+        if (maxRawPower > 1.0) {
+            //when max power is multiplied by this ratio, it will be 1.0, and others less
+            scaleDownAmount = 1.0 / maxRawPower;
+        }
+        fl_power_raw *= scaleDownAmount;
+        bl_power_raw *= scaleDownAmount;
+        br_power_raw *= scaleDownAmount;
+        fr_power_raw *= scaleDownAmount;
+
+
+        //now we can set the powers ONLY IF THEY HAVE CHANGED TO AVOID SPAMMING USB COMMUNICATIONS
+        leftFront.setPower(fl_power_raw);
+        leftBack.setPower(bl_power_raw);
+        rightBack.setPower(br_power_raw);
+        rightFront.setPower(fr_power_raw);
+    }
 
     public void setDrivePowers(PoseVelocity2d powers) {
         MecanumKinematics.WheelVelocities<Time> wheelVels = new MecanumKinematics(1).inverse(
@@ -289,6 +354,7 @@ public final class MecanumDrive {
                 yPoints[i] = p.position.y;
             }
         }
+
 
         @Override
         public boolean run(@NonNull TelemetryPacket p) {

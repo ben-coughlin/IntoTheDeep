@@ -18,7 +18,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
-import org.firstinspires.ftc.vision.VisionPortal;
+//import org.firstinspires.ftc.vision.VisionPortal;
 import org.openftc.easyopencv.OpenCvCameraFactory;
 import org.openftc.easyopencv.OpenCvCameraRotation;
 
@@ -109,7 +109,7 @@ public abstract class AutoMaster extends OpMode {
     /**
      * The variable to store our instance of the vision portal.
      */
-    private VisionPortal visionPortal;
+    //private VisionPortal visionPortal;
 
 
     //////// STATE MACHINE STUFF BELOW DO NOT TOUCH ////////
@@ -172,73 +172,18 @@ public abstract class AutoMaster extends OpMode {
         return newPoints;
     }
 
-    Vision vision;
+    //Vision vision;
 
     @Override
     public void init() {
         //initTfod();
 
-        int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId",
-                "id",
-                hardwareMap.appContext.getPackageName());
-        vision = new Vision(
-                OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class,
-                                "Webcam 1"),
-                        cameraMonitorViewId));
-        vision.openCameraDevice();
-        vision.setPipeline(new Vision.AutoVisionPipeline());
-        vision.startStreaming(320, 240, OpenCvCameraRotation.UPRIGHT);
-
-        limitSwitch = hardwareMap.get(DigitalChannel.class, "lift_limit_switch");
-
-        fourBars = new FourBars(hardwareMap);
-        intake = new Intake(hardwareMap);
-        grippers = new Grippers(hardwareMap);
-        fourBarRotator = new FourBarRotator(hardwareMap);
-        pixelTwister = new PixelTwister(hardwareMap);
-        droneAndRobotLiftRotator = new DroneAndRobotLiftRotator(hardwareMap);
-        droneLauncher = new DroneLauncher(hardwareMap);
-        intakeServo = new IntakeServo(hardwareMap);
-
-        pixelLift = new PixelLift(hardwareMap);
-
-        robotLift = hardwareMap.get(DcMotorEx.class, "robotLift");
-        robotLift.setDirection(DcMotor.Direction.REVERSE);
-        robotLift.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        robotLift.setPower(0);
-        // TODO: REMOVE THIS ASAP
-        robotLift.setMode(DcMotor.RunMode.RUN_USING_ENCODER); // to reset at initiation
-        robotLift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        robotLift.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-
-        pawright = hardwareMap.get(Servo.class, "pr");
-        pawright.setPosition(0.285);
-
-        grippers.setFrontGripperPosition(.66);
-        grippers.setBackGripperPosition(Constants.BACK_GRIPPER_OPEN);
-        pixelTwister.setPixelTwisterPosition(.48);
-        fourBarRotator.setFourBarRotatorPosition(.82);
-        fourBars.setFourBarPosition(1);
-        droneAndRobotLiftRotator.setDroneAndRobotLiftRotatorPosition(.65);
-        droneLauncher.setDroneLauncherPosition(.1);
 
         pControllerRobotLift.setInputRange(0, robotLiftMaxTicks);
         pControllerRobotLift.setSetPoint(0);
         pControllerRobotLift.setOutputRange(minPowerRobotLift, maxPowerRobotLift);
         pControllerRobotLift.setThresholdValue(5);
 
-        pixelLift.InitPixelLiftPIDController();
-
-
-        // distance sensors
-        frontPixelReceiver = hardwareMap.get(DigitalChannel.class, "frontPixelReceiver");
-        frontPixelReceiver.setMode(DigitalChannel.Mode.INPUT);
-
-        backPixelReceiver = hardwareMap.get(DigitalChannel.class, "backPixelReceiver");
-        backPixelReceiver.setMode(DigitalChannel.Mode.INPUT);
-
-        rightDistance = hardwareMap.get(AnalogInput.class, "distanceTest");
-        leftDistance = hardwareMap.get(AnalogInput.class, "distanceLeft");
     }
 
     public double mmToIn(double in) {
@@ -317,74 +262,74 @@ public abstract class AutoMaster extends OpMode {
             position = 1;
         }
 
-        if (ButtonPress.isGamepad1_dpad_down_pressed()) {
-            if (position == 1) {
-                Vision.setSample1Y(Vision.getSample1Y() - 10);
-            } else {
-                Vision.setSample2Y(Vision.getSample2Y() - 10);
-            }
-        }
-
-        if (ButtonPress.isGamepad1_dpad_up_pressed()) {
-            if (position == 1) {
-                Vision.setSample1Y(Vision.getSample1Y() + 10);
-            } else if (position == 2) {
-                Vision.setSample2Y(Vision.getSample2Y() + 10);
-            } else {
-                Vision.setSample3Y(Vision.getSample3Y() + 10);
-            }
-        }
-
-        if (ButtonPress.isGamepad1_dpad_left_pressed()) {
-            if (position == 1) {
-                Vision.setSample1X(Vision.getSample1X() - 10);
-            } else if (position == 2) {
-                Vision.setSample2X(Vision.getSample2X() - 10);
-            } else {
-                Vision.setSample3X(Vision.getSample3X() - 10);
-            }
-        }
-
-        if (ButtonPress.isGamepad1_dpad_right_pressed()) {
-            if (position == 1) {
-                Vision.setSample1X(Vision.getSample1X() + 10);
-            } else if (position == 2) {
-                Vision.setSample2X(Vision.getSample2X() + 10);
-            } else {
-                Vision.setSample3X(Vision.getSample3X() + 10);
-            }
-        }
-
-        telemetry.addData("Position to change", position);
-        telemetry.addData("Position 1 Box X", Vision.getSample1X());
-        telemetry.addData("Position 1 Box Y", Vision.getSample1Y());
-        telemetry.addData("Position 2 Box X", Vision.getSample2X());
-        telemetry.addData("Position 2 Box Y", Vision.getSample2Y());
-
-        telemetry.addData("Error Left", Vision.errorLeft);
-        telemetry.addData("Error Right", Vision.errorRight);
-        telemetry.addData("H", Vision.h);
-        telemetry.addData("S", Vision.s);
-        telemetry.addData("V", Vision.v);
-
-        telemetry.addData("We Are on Right", Vision.weAreOnRightSide);
-
-        telemetry.addData("Is Red", Vision.isRed);
-
-        if (Vision.getCubeLocation() == 0) {
-            telemetry.addData("Current Team Maker Position", "Left");
-        } else if (Vision.getCubeLocation() == 1) {
-            telemetry.addData("Current Team Maker Position", "Center");
-        } else if (Vision.getCubeLocation() == 2) {
-            telemetry.addData("Current Team Maker Position", "Right");
-        }
+//        if (ButtonPress.isGamepad1_dpad_down_pressed()) {
+//            if (position == 1) {
+//                Vision.setSample1Y(Vision.getSample1Y() - 10);
+//            } else {
+//                Vision.setSample2Y(Vision.getSample2Y() - 10);
+//            }
+//        }
+//
+//        if (ButtonPress.isGamepad1_dpad_up_pressed()) {
+//            if (position == 1) {
+//                Vision.setSample1Y(Vision.getSample1Y() + 10);
+//            } else if (position == 2) {
+//                Vision.setSample2Y(Vision.getSample2Y() + 10);
+//            } else {
+//                Vision.setSample3Y(Vision.getSample3Y() + 10);
+//            }
+//        }
+//
+//        if (ButtonPress.isGamepad1_dpad_left_pressed()) {
+//            if (position == 1) {
+//                Vision.setSample1X(Vision.getSample1X() - 10);
+//            } else if (position == 2) {
+//                Vision.setSample2X(Vision.getSample2X() - 10);
+//            } else {
+//                Vision.setSample3X(Vision.getSample3X() - 10);
+//            }
+//        }
+//
+//        if (ButtonPress.isGamepad1_dpad_right_pressed()) {
+//            if (position == 1) {
+//                Vision.setSample1X(Vision.getSample1X() + 10);
+//            } else if (position == 2) {
+//                Vision.setSample2X(Vision.getSample2X() + 10);
+//            } else {
+//                Vision.setSample3X(Vision.getSample3X() + 10);
+//            }
+//        }
+//
+//        telemetry.addData("Position to change", position);
+//        telemetry.addData("Position 1 Box X", Vision.getSample1X());
+//        telemetry.addData("Position 1 Box Y", Vision.getSample1Y());
+//        telemetry.addData("Position 2 Box X", Vision.getSample2X());
+//        telemetry.addData("Position 2 Box Y", Vision.getSample2Y());
+//
+//        telemetry.addData("Error Left", Vision.errorLeft);
+//        telemetry.addData("Error Right", Vision.errorRight);
+//        telemetry.addData("H", Vision.h);
+//        telemetry.addData("S", Vision.s);
+//        telemetry.addData("V", Vision.v);
+//
+//        telemetry.addData("We Are on Right", Vision.weAreOnRightSide);
+//
+//        telemetry.addData("Is Red", Vision.isRed);
+//
+//        if (Vision.getCubeLocation() == 0) {
+//            telemetry.addData("Current Team Maker Position", "Left");
+//        } else if (Vision.getCubeLocation() == 1) {
+//            telemetry.addData("Current Team Maker Position", "Center");
+//        } else if (Vision.getCubeLocation() == 2) {
+//            telemetry.addData("Current Team Maker Position", "Right");
+//        }
     }
 
     @Override
     public void start() {
         programStage = 0;
 
-        vision.stopStreamingVision();
+        //vision.stopStreamingVision();
         //robotLiftAlignServo.setPosition(robotLiftRotatorPosition);
     }
 
