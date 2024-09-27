@@ -36,13 +36,17 @@ public class TestAuto extends AutoMaster {
         points.add(new CurvePoint(stateStartingX, stateStartingY,
                 0, 0, 0, 0, 0, 0));
 
-        points.add(new CurvePoint(15, 0,
+        points.add(new CurvePoint(20, 0,
                 0.3 * SCALE_FACTOR, 0.5 * SCALE_FACTOR, 10, 10,
                 Math.toRadians(60), 0.6));
 
         drive.applyMovementDirectionBased();
 
 
+        if (Movement.followCurve(points, Math.toRadians(-90), 4)) {
+            drive.stopAllMovementDirectionBased();
+            nextStage();
+        }
         //example curvepoint
 //        points.add(new CurvePoint(-19, -6.5,
 //                0.4 * SCALE_FACTOR, 0.5 * SCALE_FACTOR, 10, 10,
