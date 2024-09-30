@@ -6,7 +6,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import java.util.ArrayList;
 @Autonomous
 public class TestAuto extends AutoMaster {
-    public static double SCALE_FACTOR = 1.0;
+    public static double SCALE_FACTOR = 0.6;
 
 
 
@@ -29,27 +29,27 @@ public class TestAuto extends AutoMaster {
     @Override
     public void mainLoop()
     {
+        telemetry.addData("Current State", programStage);
 
+        if (programStage == AutoTest.progStates.trustSpikeLocationState1.ordinal()) {
+            if (stageFinished) {
+                initializeStateVariables();
+            }
 
+            ArrayList<CurvePoint> points = new ArrayList<>();
+            points.add(new CurvePoint(stateStartingX, stateStartingY,
+                    0, 0, 0, 0, 0, 0));
 
-        ArrayList<CurvePoint> points = new ArrayList<>();
-        points.add(new CurvePoint(stateStartingX, stateStartingY,
-                0, 0, 0, 0, 0, 0));
+            points.add(new CurvePoint(15, 0,
+                    0.8 * SCALE_FACTOR, 0.9 * SCALE_FACTOR, 10, 10,
+                    Math.toRadians(60), 0.6));
 
-        points.add(new CurvePoint(20, 0,
-                0.3 * SCALE_FACTOR, 0.5 * SCALE_FACTOR, 10, 10,
-                Math.toRadians(60), 0.6));
+            drive.applyMovementDirectionBased();
 
-        drive.applyMovementDirectionBased();
-
-
-        if (Movement.followCurve(points, Math.toRadians(-90), 4)) {
-            drive.stopAllMovementDirectionBased();
-            nextStage();
+            if (Movement.followCurve(points, Math.toRadians(-90))) {
+                drive.stopAllMovementDirectionBased();
+                nextStage(AutoTest.progStates.trustSpikeLocationState2.ordinal());
+            }
         }
-        //example curvepoint
-//        points.add(new CurvePoint(-19, -6.5,
-//                0.4 * SCALE_FACTOR, 0.5 * SCALE_FACTOR, 10, 10,
-//                Math.toRadians(60), 0.6));
     }
 }

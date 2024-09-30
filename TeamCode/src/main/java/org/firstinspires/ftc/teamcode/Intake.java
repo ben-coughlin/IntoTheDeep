@@ -8,62 +8,55 @@ import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.hardware.ServoImplEx;
+
+import org.firstinspires.ftc.robotcore.external.Const;
+
 
 public class Intake {
-    public DcMotorEx intake;
-    public CRServo conveyor = null;
+
+    //wrist servo - twist
+    //jaw servo
+    // wrist servo - lateral movement
+    // vex motor turns intake fingers
+
+    public ServoImplEx lateralIntakeServo = null;
+    public ServoImplEx twistIntake = null;
+    public ServoImplEx jawServo = null;
+    public CRServo intake = null;
+
+
+
 
     public Intake(HardwareMap hardwareMap) {
-        intake = hardwareMap.get(DcMotorEx.class, "intake");
-        intake.setDirection(DcMotor.Direction.REVERSE);
-        intake.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        intake.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        intake.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        intake.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
-        conveyor = (CRServo) hardwareMap.get(CRServo.class, "conveyor");
+        intake = hardwareMap.get(CRServo.class, "intake");
+        lateralIntakeServo = hardwareMap.get(ServoImplEx.class, "lateralIntakeServo");
+        twistIntake = hardwareMap.get(ServoImplEx.class, "twistIntake");
+        jawServo = hardwareMap.get(ServoImplEx.class, "jawServo");
 
+        //TODO: add directions and starting positions
+
+        lateralIntakeServo.setPosition(Constants.LATERAL_INTAKE_SERVO_INIT);
+        jawServo.setPosition(Constants.JAW_SERVO_INIT);
+        twistIntake.setPosition(Constants.INTAKE_TWISTER_INIT);
     }
 
-    public class IntakeOn implements Action {
-        private boolean initialized = false;
+    public void setIntakeSpeed(double intakeSpeed) { intake.setPower(intakeSpeed); }
 
-        @Override
-        public boolean run(@NonNull TelemetryPacket packet) {
-            if (!initialized) {
-                intake.setPower(0.8);
-                conveyor.setPower(-.91);
+    public void setjawPosition(double jawPosition) { jawServo.setPosition(jawPosition); }
 
-                initialized = true;
-            }
+    public void setTwistPosition(double twistPosition) { twistIntake.setPosition(twistPosition); }
 
-            double pow = intake.getPower();
-            packet.put("intake Power", pow);
-            return pow <10_000.0;
-        }
-    }
+    public void setLateralIntakePosition(double lateralIntakePosition) { lateralIntakeServo.setPosition(lateralIntakePosition); }
 
-    public Action intakeOn() {
-        return new IntakeOn();
-    }
 
-    public class IntakeOff implements Action {
-        private boolean initialized = false;
 
-        @Override
-        public boolean run(@NonNull TelemetryPacket packet) {
-            if (!initialized) {
-                intake.setPower(0.0);
-                conveyor.setPower(0);
-                initialized = true;
-            }
 
-            double pow = intake.getPower();
-            packet.put("intake Power", pow);
-            return pow <10_000.0;
-        }
-    }
-    public Action intakeOff() {
-        return new IntakeOff();
-    }
+
+
+
+
+
 }

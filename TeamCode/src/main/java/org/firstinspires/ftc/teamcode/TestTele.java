@@ -34,6 +34,7 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
@@ -61,6 +62,15 @@ public class TestTele extends OpMode
     private DcMotor rightBack = null;
     private DcMotor leftBack = null;
 
+    Intake intake = null;
+
+
+    enum GrabSample
+    {
+        INTAKE_ON,
+    }
+
+    GrabSample grabSample = GrabSample.INTAKE_ON;
 
     /*
      * Code to run ONCE when the driver hits INIT
@@ -138,9 +148,25 @@ public class TestTele extends OpMode
         rightFront.setPower(rightPower);
         rightBack.setPower(rightPower);
 
+
+        switch(grabSample)
+        {
+            case INTAKE_ON:
+            {
+                if(ButtonPress.isGamepad1_right_bumper_pressed())
+                {
+                    intake.setIntakeSpeed(0.5);
+                    grabSample = GrabSample.INTAKE_ON;
+                }
+            }
+            break;
+        }
+
         // Show the elapsed game time and wheel power.
         telemetry.addData("Status", "Run Time: " + runtime.toString());
         telemetry.addData("Motors", "left (%.2f), right (%.2f)", leftPower, rightPower);
+
+
     }
 
     /*
