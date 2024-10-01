@@ -159,7 +159,6 @@ public class TestTele extends OpMode
                     grabSample = GrabSample.INTAKE_ON;
                 }
             }
-            break;
         }
 
         // Show the elapsed game time and wheel power.
