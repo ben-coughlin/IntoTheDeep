@@ -29,12 +29,9 @@
 
 package org.firstinspires.ftc.teamcode;
 
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
-import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
@@ -63,14 +60,19 @@ public class TestTele extends OpMode
     private DcMotor leftBack = null;
 
     Intake intake = null;
+    Lift lift = null;
+    Pivot pivot = null;
 
+    ElapsedTime waitTimer1 = new ElapsedTime();
 
     enum GrabSample
     {
+        PIVOT,
+        EXTEND_LIFT,
         INTAKE_ON,
     }
 
-    GrabSample grabSample = GrabSample.INTAKE_ON;
+    GrabSample grabSample = GrabSample.PIVOT;
 
     /*
      * Code to run ONCE when the driver hits INIT
@@ -151,15 +153,41 @@ public class TestTele extends OpMode
 
         switch(grabSample)
         {
-            case INTAKE_ON:
+            case PIVOT:
             {
                 if(ButtonPress.isGamepad1_right_bumper_pressed())
                 {
-                    intake.setIntakeSpeed(0.5);
-                    grabSample = GrabSample.INTAKE_ON;
+                    //rotate pivot into pickup position
+                    pivot.pivotPController.setSetPoint(Constants.PIVOT_PICKUP_POSITION);
+                    pivot.updatePivotPosition();
+                    waitTimer1.reset();
+
+                    grabSample = GrabSample.EXTEND_LIFT;
                 }
             }
+            case EXTEND_LIFT:
+            {
+                //extend lift into pickup position
+                lift.liftPController.setSetPoint(Constants.LIFT_PICKUP_POSITION);
+                lift.updateLiftPosition();
+
+                grabSample = GrabSample.EXTEND_LIFT;
+            }
+            case INTAKE_ON:
+            {
+                intake.setIntakeSpeed(Constants.INTAKE_PICKUP_SPEED);
+
+                if(waitTimer1.seconds() > 1)
+                {
+                    intake.setIntakeSpeed(0);
+                }
+
+                grabSample = GrabSample.PIVOT;
+            }
+            break;
         }
+
+
 
         // Show the elapsed game time and wheel power.
         telemetry.addData("Status", "Run Time: " + runtime.toString());

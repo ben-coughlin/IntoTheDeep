@@ -25,6 +25,7 @@ package org.firstinspires.ftc.teamcode;
 import static com.qualcomm.robotcore.util.TypeConversion.byteArrayToInt;
 
 import com.qualcomm.hardware.lynx.LynxI2cDeviceSynch;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.hardware.I2cAddr;
 import com.qualcomm.robotcore.hardware.I2cDeviceSynchDevice;
 import com.qualcomm.robotcore.hardware.I2cDeviceSynchSimple;
@@ -34,13 +35,13 @@ import com.qualcomm.robotcore.util.TypeConversion;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
-import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
+//import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.Arrays;
 
-
+@Disabled
 @I2cDeviceType
 @DeviceProperties(
         name = "goBILDA® Pinpoint Odometry Computer",
@@ -378,12 +379,13 @@ public class GoBildaPinpointDriver extends I2cDeviceSynchDevice<I2cDeviceSynchSi
      * relative to that new, more accurate position.
      * @param pos a Pose2D describing the robot's new position.
      */
-    public Pose2D setPosition(Pose2D pos){
-        writeByteArray(Register.X_POSITION,(floatToByteArray((float) pos.getX(DistanceUnit.MM), ByteOrder.LITTLE_ENDIAN)));
-        writeByteArray(Register.Y_POSITION,(floatToByteArray((float) pos.getY(DistanceUnit.MM),ByteOrder.LITTLE_ENDIAN)));
-        writeByteArray(Register.H_ORIENTATION,(floatToByteArray((float) pos.getHeading(AngleUnit.RADIANS),ByteOrder.LITTLE_ENDIAN)));
-        return pos;
-    }
+    //todo: fix this once i get a response from gobilda
+//    public Pose2D setPosition(Pose2D pos){
+//        writeByteArray(Register.X_POSITION,(floatToByteArray((float) pos.getX(DistanceUnit.MM), ByteOrder.LITTLE_ENDIAN)));
+//        writeByteArray(Register.Y_POSITION,(floatToByteArray((float) pos.getY(DistanceUnit.MM),ByteOrder.LITTLE_ENDIAN)));
+//        writeByteArray(Register.H_ORIENTATION,(floatToByteArray((float) pos.getHeading(AngleUnit.RADIANS),ByteOrder.LITTLE_ENDIAN)));
+//        return pos;
+//    }
 
     /**
      * Checks the deviceID of the Odometry Computer. Should return 1.
@@ -486,26 +488,27 @@ public class GoBildaPinpointDriver extends I2cDeviceSynchDevice<I2cDeviceSynchSi
     /**
      * @return a Pose2D containing the estimated position of the robot
      */
-    public Pose2D getPosition(){
-        return new Pose2D(DistanceUnit.MM,
-                xPosition,
-                yPosition,
-                AngleUnit.RADIANS,
-                hOrientation);
-    }
-
-
-
-    /**
-     * @return a Pose2D containing the estimated velocity of the robot, velocity is unit per second
-     */
-    public Pose2D getVelocity(){
-        return new Pose2D(DistanceUnit.MM,
-                xVelocity,
-                yVelocity,
-                AngleUnit.RADIANS,
-                hVelocity);
-    }
+    //todo: fix this once i get a response from gobilda
+//    public Pose2D getPosition(){
+//        return new Pose2D(DistanceUnit.MM,
+//                xPosition,
+//                yPosition,
+//                AngleUnit.RADIANS,
+//                hOrientation);
+//    }
+//
+//
+//
+//    /**
+//     * @return a Pose2D containing the estimated velocity of the robot, velocity is unit per second
+//     */
+//    public Pose2D getVelocity(){
+//        return new Pose2D(DistanceUnit.MM,
+//                xVelocity,
+//                yVelocity,
+//                AngleUnit.RADIANS,
+//                hVelocity);
+//    }
 
 
 
