@@ -1,18 +1,4 @@
-<<<<<<< HEAD
-# 17969 main repository for the Into The Deep season
-=======
-## Please Switch to the goBILDA-Odometry-Driver Branch to use this repository. The master branch contains only the FTC SDK.
-
-## NOTICE
->>>>>>> 2846d5ca56e6c42019b8f0b4d8f128088d82cd45
-
- 
-
-### rr docs
-Check out the [docs](https://rr.brott.dev/docs/v1-0/tuning/).
-
-<<<<<<< HEAD
-=======
+# 17969 ftc for into the deep
 ## Requirements
 To use this Android Studio project, you will need Android Studio 2021.2 (codename Chipmunk) or later.
 
