@@ -26,4 +26,8 @@ public class Constants {
     public static final double LIFT_PICKUP_POSITION = 0;
     public static final double LIFT_HOME_POSITION = 0;
 
+    //odo
+    public static final double X_OFFSET = -1;
+    public static final double Y_OFFSET = 1;
+
 }
