@@ -11,7 +11,7 @@ public class Constants {
     //intake
     public static final double INTAKE_TWISTER_INIT = 0;
     public static final double JAW_SERVO_INIT = 0.05;
-    public static final double LATERAL_INTAKE_SERVO_INIT = 0;
+    public static final double LATERAL_INTAKE_SERVO_INIT = 0.08;
     public static final double JAW_OPEN = 0.05;
     public static final double JAW_CLOSED = 0.7;
     public static final double LATERAL_INTAKE_LEFT = 0.1;

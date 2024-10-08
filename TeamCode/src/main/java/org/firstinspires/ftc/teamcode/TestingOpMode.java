@@ -108,17 +108,18 @@ public class TestingOpMode extends OpMode
     @Override
     public void loop() {
 
+        intake.setPower(0.85);
 
         if(gamepad1.a)
         {
-            jawServo.setPosition(Constants.JAW_OPEN); // open
+            jawServo.setPosition(Constants.JAW_CLOSED);
             lateralIntakeServo.setPosition(Constants.LATERAL_INTAKE_LEFT);
-            intake.setPower(1);
+
             isOpen = true;
         }
          else if(gamepad1.b)
         {
-            jawServo.setPosition(Constants.JAW_CLOSED); //closed
+            jawServo.setPosition(Constants.JAW_OPEN);
             lateralIntakeServo.setPosition(Constants.LATERAL_INTAKE_RIGHT);
             intake.setPower(0);
             isOpen = false;

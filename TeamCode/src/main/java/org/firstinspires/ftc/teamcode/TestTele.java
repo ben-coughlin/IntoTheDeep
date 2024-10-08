@@ -37,17 +37,17 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.IMU;
-import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.util.ElapsedTime;
-import com.qualcomm.robotcore.util.Range;
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 
+import org.firstinspires.ftc.robotcore.external.Const;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
 
 import java.util.Locale;
+import java.lang.Math;
 
 
 /*
@@ -83,14 +83,14 @@ public class TestTele extends OpMode
 
     ElapsedTime waitTimer1 = new ElapsedTime();
 
-//    enum GrabSample
-//    {
-//        PIVOT,
-//        EXTEND_LIFT,
-//        INTAKE_ON,
-//    }
-//
-//    GrabSample grabSample = GrabSample.PIVOT;
+    enum GrabSample
+    {
+        OPEN_JAW,
+        MOVE_WRIST_LATERALLY,
+        INTAKE_ON,
+    }
+
+    GrabSample grabSample = GrabSample.OPEN_JAW;
 
     //arcade vars
     double denominator = 0;
@@ -200,9 +200,6 @@ public class TestTele extends OpMode
         //Finds the hypotenuse of the triangle created by the two joystick values. Used to find the absolute direction to go in.
 
 
-
-
-
         // this is gm0 arcade code added on 11/21/23 above is what we used before
         rotX = leftStickX * Math.cos(-imuYawRadians) - leftStickY * Math.sin(-imuYawRadians);
         rotY = leftStickX * Math.sin(-imuYawRadians) + leftStickY * Math.cos(-imuYawRadians);
@@ -224,116 +221,118 @@ public class TestTele extends OpMode
         //robot.leftBack.setPower(v4);
 
 
-    }
+        double movement_y = -gamepad1.left_stick_y;
+        double movement_x = gamepad1.left_stick_x;
+        double movement_turn = -gamepad1.right_stick_x;
 
-   double movement_y = -gamepad1.left_stick_y;
-   double movement_x = gamepad1.left_stick_x;
-   double movement_turn = -gamepad1.right_stick_x;
+        double fl_power_raw = movement_y - movement_turn + movement_x * 1.5;
+        double bl_power_raw = movement_y - movement_turn - movement_x * 1.5;
+        double br_power_raw = movement_y + movement_turn + movement_x * 1.5;
+        double frPowerRaw = movement_y + movement_turn - movement_x * 1.5;
 
-    double fl_power_raw = movement_y - movement_turn + movement_x * 1.5;
-    double bl_power_raw = movement_y - movement_turn - movement_x * 1.5;
-    double br_power_raw = movement_y + movement_turn + movement_x * 1.5;
-    double fr_power_raw = movement_y + movement_turn - movement_x * 1.5;
+        //find the maximum of the powers
+        double maxRawPower = Math.abs(fl_power_raw);
 
-    //find the maximum of the powers
-//    double maxRawPower = Math.abs(fl_power_raw);
-//        if (Math.abs(bl_power_raw) > maxRawPower) {
-//    maxRawPower = Math.abs(bl_power_raw);
-//}
-//        if (Math.abs(br_power_raw) > maxRawPower) {
-//    maxRawPower = Math.abs(br_power_raw);
-//}
-//        if (Math.abs(fr_power_raw) > maxRawPower) {
-//    maxRawPower = Math.abs(fr_power_raw);
-//}
-//
-//    //if the maximum is greater than 1, scale all the powers down to preserve the shape
-//    double scaleDownAmount = 1.0;
-//        if (maxRawPower > 1.0) {
-//    //when max power is multiplied by this ratio, it will be 1.0, and others less
-//    scaleDownAmount = 1.0 / maxRawPower;
-//}
-//    fl_power_raw *= scaleDownAmount;
-//    bl_power_raw *= scaleDownAmount;
-//    br_power_raw *= scaleDownAmount;
-//    fr_power_raw *= scaleDownAmount;
-//
-//    //now we can set the powers ONLY IF THEY HAVE CHANGED TO AVOID SPAMMING USB COMMUNICATIONS
-//        leftFront.setPower(fl_power_raw);
-//        leftBack.setPower(bl_power_raw);
-//        rightBack.setPower(br_power_raw);
-//        rightFront.setPower(fr_power_raw);
+        if (Math.abs(bl_power_raw) > maxRawPower) {
+            maxRawPower = Math.abs(bl_power_raw);
+        }
+        if (Math.abs(br_power_raw) > maxRawPower) {
+            maxRawPower = Math.abs(br_power_raw);
+        }
+        if ((frPowerRaw) > maxRawPower) {
+            maxRawPower = Math.abs(frPowerRaw);
+        }
 
-//commented out to test driving
-//        switch(grabSample)
-//        {
-//            case PIVOT:
-//            {
-//                if(ButtonPress.isGamepad1_right_bumper_pressed())
-//                {
-//                    //rotate pivot into pickup position
-//                    pivot.pivotPController.setSetPoint(Constants.PIVOT_PICKUP_POSITION);
-//                    pivot.updatePivotPosition();
-//                    waitTimer1.reset();
-//
-//                    grabSample = GrabSample.EXTEND_LIFT;
-//                }
-//            }
-//            case EXTEND_LIFT:
-//            {
-//                //extend lift into pickup position
-//                //lift.liftPController.setSetPoint(Constants.LIFT_PICKUP_POSITION);
-//                lift.updateLiftPosition();
-//
-//                grabSample = GrabSample.EXTEND_LIFT;
-//            }
-//            case INTAKE_ON:
-//            {
-//                intake.setIntakeSpeed(Constants.INTAKE_PICKUP_SPEED);
-//
-//                if(waitTimer1.seconds() > 1)
-//                {
-//                    intake.setIntakeSpeed(0);
-//                }
-//
-//                grabSample = GrabSample.PIVOT;
-//            }
-//            break;
-//        }
-double newTime = getRuntime();
-//        double loopTime = newTime-oldTime;
-//        double frequency = 1/loopTime;
-//        oldTime = newTime;
-//
-//         /*
-//            gets the current Position (x & y in mm, and heading in degrees) of the robot, and prints it.
-//             */
-//        Pose2D pos = odo.getPosition();
-//        String data = String.format(Locale.US, "{X: %.3f, Y: %.3f, H: %.3f}", pos.getX(DistanceUnit.MM), pos.getY(DistanceUnit.MM), pos.getHeading(AngleUnit.DEGREES));
-//        telemetry.addData("Position", data);
-//
-//            /*
-//            gets the current Velocity (x & y in mm/sec and heading in degrees/sec) and prints it.
-//             */
-//        Pose2D vel = odo.getVelocity();
-//        String velocity = String.format(Locale.US,"{XVel: %.3f, YVel: %.3f, HVel: %.3f}", vel.getX(DistanceUnit.MM), vel.getY(DistanceUnit.MM), vel.getHeading(AngleUnit.DEGREES));
-//        telemetry.addData("Velocity", velocity);
-//
-//        // Show the elapsed game time and wheel power.
-//        telemetry.addData("Status", "Run Time: " + runtime.toString());
-//        telemetry.addData("Status", odo.getDeviceStatus());
-//        telemetry.addData("Pinpoint Frequency", odo.getFrequency()); //prints/gets the current refresh rate of the Pinpoint
-//        telemetry.addData("REV Hub Frequency: ", frequency); //prints the control system refresh rate
-//        telemetry.update();
-//
+        //if the maximum is greater than 1, scale all the powers down to preserve the shape
+        double scaleDownAmount = 1.0;
+        if (maxRawPower > 1.0) {
+            //when max power is multiplied by this ratio, it will be 1.0, and others less
+            scaleDownAmount = 1.0 / maxRawPower;
 
+            fl_power_raw *= scaleDownAmount;
+            bl_power_raw *= scaleDownAmount;
+            br_power_raw *= scaleDownAmount;
+            frPowerRaw *= scaleDownAmount;
+
+            //now we can set the powers ONLY IF THEY HAVE CHANGED TO AVOID SPAMMING USB COMMUNICATIONS
+            leftFront.setPower(fl_power_raw);
+            leftBack.setPower(bl_power_raw);
+            rightBack.setPower(br_power_raw);
+            rightFront.setPower(frPowerRaw);
+
+            //commented out to test driving
+            switch (grabSample) {
+                case OPEN_JAW: {
+                    if (ButtonPress.isGamepad1_right_bumper_pressed()) {
+                        //rotate pivot into pickup position
+                        intake.jawServo.setPosition(Constants.JAW_OPEN);
+
+                        waitTimer1.reset();
+                    }
+
+                        grabSample = GrabSample.MOVE_WRIST_LATERALLY;
+
+                }
+                case MOVE_WRIST_LATERALLY: {
+                    //extend lift into pickup position
+                    if(ButtonPress.isGamepad1_dpad_left_pressed())
+                    {
+                        intake.lateralIntakeServo.setPosition(Constants.LATERAL_INTAKE_LEFT);
+                    }
+                    else if(ButtonPress.isGamepad1_dpad_right_pressed())
+                    {
+                        intake.lateralIntakeServo.setPosition(Constants.LATERAL_INTAKE_RIGHT);
+                    }
+
+
+                    grabSample = GrabSample.MOVE_WRIST_LATERALLY;
+                }
+                case INTAKE_ON: {
+                    intake.setIntakeSpeed(1);
+
+                    if (waitTimer1.seconds() > 1) {
+                        intake.setIntakeSpeed(0);
+                    }
+
+                    grabSample = GrabSample.OPEN_JAW;
+                }
+                break;
+            }
+            double newTime = getRuntime();
+            double loopTime = newTime - oldTime;
+            double frequency = 1 / loopTime;
+            oldTime = newTime;
+
+         /*
+            gets the current Position (x & y in mm, and heading in degrees) of the robot, and prints it.
+             */
+            Pose2D pos = odo.getPosition();
+            String data = String.format(Locale.US, "{X: %.3f, Y: %.3f, H: %.3f}", pos.getX(DistanceUnit.MM), pos.getY(DistanceUnit.MM), pos.getHeading(AngleUnit.DEGREES));
+            telemetry.addData("Position", data);
+
+            /*
+            gets the current Velocity (x & y in mm/sec and heading in degrees/sec) and prints it.
+             */
+            Pose2D vel = odo.getVelocity();
+            String velocity = String.format(Locale.US, "{XVel: %.3f, YVel: %.3f, HVel: %.3f}", vel.getX(DistanceUnit.MM), vel.getY(DistanceUnit.MM), vel.getHeading(AngleUnit.DEGREES));
+            telemetry.addData("Velocity", velocity);
+
+            // Show the elapsed game time and wheel power.
+            telemetry.addData("Status", "Run Time: " + runtime.toString());
+            telemetry.addData("Status", odo.getDeviceStatus());
+            telemetry.addData("Pinpoint Frequency", odo.getFrequency()); //prints/gets the current refresh rate of the Pinpoint
+            telemetry.addData("REV Hub Frequency: ", frequency); //prints the control system refresh rate
+            telemetry.update();
+
+
+        }
     }
 
     /*
      * Code to run ONCE after the driver hits STOP
      */
-//    @Override
-//    public void stop() {
-//    }
-//
-//}
+    @Override
+    public void stop() {
+    }
+
+    }
