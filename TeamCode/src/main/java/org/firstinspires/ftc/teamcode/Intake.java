@@ -21,10 +21,10 @@ public class Intake {
     // wrist servo - lateral movement
     // vex motor turns intake fingers
 
-    public ServoImplEx lateralIntakeServo = null;
-    public ServoImplEx twistIntake = null;
-    public ServoImplEx jawServo = null;
-    public CRServo intake = null;
+    public Servo lateralIntakeServo;
+    public Servo twistIntake;
+    public Servo jawServo;
+    public CRServo intake;
 
 
 
@@ -32,9 +32,9 @@ public class Intake {
     public Intake(HardwareMap hardwareMap) {
 
         intake = hardwareMap.get(CRServo.class, "intake");
-        lateralIntakeServo = hardwareMap.get(ServoImplEx.class, "lateralIntakeServo");
-        twistIntake = hardwareMap.get(ServoImplEx.class, "twistIntake");
-        jawServo = hardwareMap.get(ServoImplEx.class, "jawServo");
+        lateralIntakeServo = hardwareMap.get(Servo.class, "lateralIntakeServo");
+        twistIntake = hardwareMap.get(Servo.class, "twistIntake");
+        jawServo = hardwareMap.get(Servo.class, "jawServo");
 
         //TODO: add directions and starting positions
 
@@ -43,13 +43,13 @@ public class Intake {
         twistIntake.setPosition(Constants.INTAKE_TWISTER_INIT);
     }
 
-    public void setIntakeSpeed(double intakeSpeed) { intake.setPower(intakeSpeed); }
-
-    public void setjawPosition(double jawPosition) { jawServo.setPosition(jawPosition); }
-
-    public void setTwistPosition(double twistPosition) { twistIntake.setPosition(twistPosition); }
-
-    public void setLateralIntakePosition(double lateralIntakePosition) { lateralIntakeServo.setPosition(lateralIntakePosition); }
+//    public void setIntakeSpeed(double intakeSpeed) { intake.setPower(intakeSpeed); }
+//
+//    public void setjawPosition(double jawPosition) { jawServo.setPosition(jawPosition); }
+//
+//    public void setTwistPosition(double twistPosition) { twistIntake.setPosition(twistPosition); }
+//
+//    public void setLateralIntakePosition(double lateralIntakePosition) { lateralIntakeServo.setPosition(lateralIntakePosition); }
 
 
 

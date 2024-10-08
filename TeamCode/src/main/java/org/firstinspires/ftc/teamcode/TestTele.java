@@ -29,9 +29,9 @@
 
 package org.firstinspires.ftc.teamcode;
 
-import static org.firstinspires.ftc.teamcode.MovementVars.movement_turn;
-import static org.firstinspires.ftc.teamcode.MovementVars.movement_x;
-import static org.firstinspires.ftc.teamcode.MovementVars.movement_y;
+//import static org.firstinspires.ftc.teamcode.MovementVars.movement_turn;
+//import static org.firstinspires.ftc.teamcode.MovementVars.movement_x;
+//import static org.firstinspires.ftc.teamcode.MovementVars.movement_y;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
@@ -196,43 +196,74 @@ public class TestTele extends OpMode
         double oldTime = 0;
 
         odo.update();
-        movement_y = -gamepad1.left_stick_y;
-        movement_x = gamepad1.left_stick_x;
-        movement_turn = -gamepad1.right_stick_x;
+        //// DRIVE ************************************************************************
+        //Finds the hypotenuse of the triangle created by the two joystick values. Used to find the absolute direction to go in.
 
-        double fl_power_raw = movement_y - movement_turn + movement_x * 1.5;
-        double bl_power_raw = movement_y - movement_turn - movement_x * 1.5;
-        double br_power_raw = movement_y + movement_turn + movement_x * 1.5;
-        double fr_power_raw = movement_y + movement_turn - movement_x * 1.5;
 
-        //find the maximum of the powers
-        double maxRawPower = Math.abs(fl_power_raw);
-        if (Math.abs(bl_power_raw) > maxRawPower) {
-            maxRawPower = Math.abs(bl_power_raw);
-        }
-        if (Math.abs(br_power_raw) > maxRawPower) {
-            maxRawPower = Math.abs(br_power_raw);
-        }
-        if (Math.abs(fr_power_raw) > maxRawPower) {
-            maxRawPower = Math.abs(fr_power_raw);
-        }
 
-        //if the maximum is greater than 1, scale all the powers down to preserve the shape
-        double scaleDownAmount = 1.0;
-        if (maxRawPower > 1.0) {
-            //when max power is multiplied by this ratio, it will be 1.0, and others less
-            scaleDownAmount = 1.0 / maxRawPower;
-        }
-        fl_power_raw *= scaleDownAmount;
-        bl_power_raw *= scaleDownAmount;
-        br_power_raw *= scaleDownAmount;
-        fr_power_raw *= scaleDownAmount;
 
-        //now we can set the powers ONLY IF THEY HAVE CHANGED TO AVOID SPAMMING USB COMMUNICATIONS
-        leftFront.setPower(fl_power_raw);
-        leftBack.setPower(bl_power_raw);
-        rightBack.setPower(br_power_raw);
-        rightFront.setPower(fr_power_raw);
+
+        // this is gm0 arcade code added on 11/21/23 above is what we used before
+        rotX = leftStickX * Math.cos(-imuYawRadians) - leftStickY * Math.sin(-imuYawRadians);
+        rotY = leftStickX * Math.sin(-imuYawRadians) + leftStickY * Math.cos(-imuYawRadians);
+
+        rotX = rotX * 1.1;  // Counteract imperfect strafing
+
+        // Denominator is the largest motor power (absolute value) or 1
+        // This ensures all the powers maintain the same ratio,
+        // but only if at least one is out of the range [-1, 1]
+        denominator = Math.max(Math.abs(rotY) + Math.abs(rotX) + Math.abs(rightStickX), 1);
+        v2 = (rotY + rotX + rightStickX) / denominator; // frontLeft
+        v4 = (rotY - rotX + rightStickX) / denominator; //backLeft
+        v1 = (rotY - rotX - rightStickX) / denominator; //frontRight
+        v3 = (rotY + rotX - rightStickX) / denominator; // backRight
+
+        //robot.rightFront.setPower(v1);
+        //robot.leftFront.setPower(v2);
+        //robot.rightBack.setPower(v3);
+        //robot.leftBack.setPower(v4);
+
+
+    }
+
+   double movement_y = -gamepad1.left_stick_y;
+   double movement_x = gamepad1.left_stick_x;
+   double movement_turn = -gamepad1.right_stick_x;
+
+    double fl_power_raw = movement_y - movement_turn + movement_x * 1.5;
+    double bl_power_raw = movement_y - movement_turn - movement_x * 1.5;
+    double br_power_raw = movement_y + movement_turn + movement_x * 1.5;
+    double fr_power_raw = movement_y + movement_turn - movement_x * 1.5;
+
+    //find the maximum of the powers
+//    double maxRawPower = Math.abs(fl_power_raw);
+//        if (Math.abs(bl_power_raw) > maxRawPower) {
+//    maxRawPower = Math.abs(bl_power_raw);
+//}
+//        if (Math.abs(br_power_raw) > maxRawPower) {
+//    maxRawPower = Math.abs(br_power_raw);
+//}
+//        if (Math.abs(fr_power_raw) > maxRawPower) {
+//    maxRawPower = Math.abs(fr_power_raw);
+//}
+//
+//    //if the maximum is greater than 1, scale all the powers down to preserve the shape
+//    double scaleDownAmount = 1.0;
+//        if (maxRawPower > 1.0) {
+//    //when max power is multiplied by this ratio, it will be 1.0, and others less
+//    scaleDownAmount = 1.0 / maxRawPower;
+//}
+//    fl_power_raw *= scaleDownAmount;
+//    bl_power_raw *= scaleDownAmount;
+//    br_power_raw *= scaleDownAmount;
+//    fr_power_raw *= scaleDownAmount;
+//
+//    //now we can set the powers ONLY IF THEY HAVE CHANGED TO AVOID SPAMMING USB COMMUNICATIONS
+//        leftFront.setPower(fl_power_raw);
+//        leftBack.setPower(bl_power_raw);
+//        rightBack.setPower(br_power_raw);
+//        rightFront.setPower(fr_power_raw);
+
 //commented out to test driving
 //        switch(grabSample)
 //        {
@@ -269,40 +300,40 @@ public class TestTele extends OpMode
 //            }
 //            break;
 //        }
-
-        double newTime = getRuntime();
-        double loopTime = newTime-oldTime;
-        double frequency = 1/loopTime;
-        oldTime = newTime;
-
-         /*
-            gets the current Position (x & y in mm, and heading in degrees) of the robot, and prints it.
-             */
-        Pose2D pos = odo.getPosition();
-        String data = String.format(Locale.US, "{X: %.3f, Y: %.3f, H: %.3f}", pos.getX(DistanceUnit.MM), pos.getY(DistanceUnit.MM), pos.getHeading(AngleUnit.DEGREES));
-        telemetry.addData("Position", data);
-
-            /*
-            gets the current Velocity (x & y in mm/sec and heading in degrees/sec) and prints it.
-             */
-        Pose2D vel = odo.getVelocity();
-        String velocity = String.format(Locale.US,"{XVel: %.3f, YVel: %.3f, HVel: %.3f}", vel.getX(DistanceUnit.MM), vel.getY(DistanceUnit.MM), vel.getHeading(AngleUnit.DEGREES));
-        telemetry.addData("Velocity", velocity);
-
-        // Show the elapsed game time and wheel power.
-        telemetry.addData("Status", "Run Time: " + runtime.toString());
-        telemetry.addData("Status", odo.getDeviceStatus());
-        telemetry.addData("Pinpoint Frequency", odo.getFrequency()); //prints/gets the current refresh rate of the Pinpoint
-        telemetry.addData("REV Hub Frequency: ", frequency); //prints the control system refresh rate
-        telemetry.update();
+double newTime = getRuntime();
+//        double loopTime = newTime-oldTime;
+//        double frequency = 1/loopTime;
+//        oldTime = newTime;
+//
+//         /*
+//            gets the current Position (x & y in mm, and heading in degrees) of the robot, and prints it.
+//             */
+//        Pose2D pos = odo.getPosition();
+//        String data = String.format(Locale.US, "{X: %.3f, Y: %.3f, H: %.3f}", pos.getX(DistanceUnit.MM), pos.getY(DistanceUnit.MM), pos.getHeading(AngleUnit.DEGREES));
+//        telemetry.addData("Position", data);
+//
+//            /*
+//            gets the current Velocity (x & y in mm/sec and heading in degrees/sec) and prints it.
+//             */
+//        Pose2D vel = odo.getVelocity();
+//        String velocity = String.format(Locale.US,"{XVel: %.3f, YVel: %.3f, HVel: %.3f}", vel.getX(DistanceUnit.MM), vel.getY(DistanceUnit.MM), vel.getHeading(AngleUnit.DEGREES));
+//        telemetry.addData("Velocity", velocity);
+//
+//        // Show the elapsed game time and wheel power.
+//        telemetry.addData("Status", "Run Time: " + runtime.toString());
+//        telemetry.addData("Status", odo.getDeviceStatus());
+//        telemetry.addData("Pinpoint Frequency", odo.getFrequency()); //prints/gets the current refresh rate of the Pinpoint
+//        telemetry.addData("REV Hub Frequency: ", frequency); //prints the control system refresh rate
+//        telemetry.update();
+//
 
     }
 
     /*
      * Code to run ONCE after the driver hits STOP
      */
-    @Override
-    public void stop() {
-    }
-
-}
+//    @Override
+//    public void stop() {
+//    }
+//
+//}

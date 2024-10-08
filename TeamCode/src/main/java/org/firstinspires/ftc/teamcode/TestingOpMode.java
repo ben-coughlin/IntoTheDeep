@@ -29,9 +29,12 @@
 
 package org.firstinspires.ftc.teamcode;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.hardware.ServoImplEx;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 /*
@@ -53,20 +56,32 @@ public class TestingOpMode extends OpMode
 {
     // Declare OpMode members.
     private ElapsedTime runtime = new ElapsedTime();
-    private Servo servo = null;
+    //Intake intake;
+    boolean isOpen = false;
+
+    private Servo jawServo = null;
+    private Servo lateralIntakeServo = null;
+    private CRServo intake = null;
+
+
 
     /*
      * Code to run ONCE when the driver hits INIT
      */
     @Override
     public void init() {
-
+        jawServo = hardwareMap.get(Servo.class, "jawServo");
+        lateralIntakeServo = hardwareMap.get(Servo.class, "lateralIntakeServo");
+        intake = hardwareMap.get(CRServo.class, "intake");
 
         // Initialize the hardware variables. Note that the strings used here as parameters
         // to 'get' must correspond to the names assigned during the robot configuration
         // step (using the FTC Robot Controller app on the phone).
-        servo = hardwareMap.get(Servo.class, "servo");
-        servo.setPosition(0.3);
+       jawServo.setPosition(0.05);
+        lateralIntakeServo.setPosition(0);
+        intake.setPower(0.05);
+
+
 
         // Tell the driver that initialization is complete.
         telemetry.addData("Status", "Initialized");
@@ -96,18 +111,24 @@ public class TestingOpMode extends OpMode
 
         if(gamepad1.a)
         {
-            servo.setPosition(0.50);
-
+            jawServo.setPosition(Constants.JAW_OPEN); // open
+            lateralIntakeServo.setPosition(Constants.LATERAL_INTAKE_LEFT);
+            intake.setPower(1);
+            isOpen = true;
         }
          else if(gamepad1.b)
         {
-            servo.setPosition(0.30);
+            jawServo.setPosition(Constants.JAW_CLOSED); //closed
+            lateralIntakeServo.setPosition(Constants.LATERAL_INTAKE_RIGHT);
+            intake.setPower(0);
+            isOpen = false;
         }
 
 
 
         // Show the elapsed game time and wheel power.
         telemetry.addData("Status", "Run Time: " + runtime.toString());
+         telemetry.addData("jaw ", jawServo.getPosition());
 
     }
 
