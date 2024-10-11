@@ -9,7 +9,9 @@ public class Constants {
     public static final double BLUE_PIPELINE = 2;
 
     //intake
-    public static final double INTAKE_TWISTER_INIT = 0;
+    public static final double INTAKE_TWISTER_INIT = 0.25;
+    public static final double INTAKE_TWISTER_LEFT = 0.55;
+    public static final double INTAKE_TWISTER_RIGHT = 0;
     public static final double JAW_SERVO_INIT = 0.05;
     public static final double LATERAL_INTAKE_SERVO_INIT = 0.08;
     public static final double JAW_OPEN = 0.05;

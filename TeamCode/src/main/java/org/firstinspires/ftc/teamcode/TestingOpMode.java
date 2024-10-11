@@ -56,12 +56,10 @@ public class TestingOpMode extends OpMode
 {
     // Declare OpMode members.
     private ElapsedTime runtime = new ElapsedTime();
-    //Intake intake;
+     //Intake intake;
     boolean isOpen = false;
 
-    private Servo jawServo = null;
-    private Servo lateralIntakeServo = null;
-    private CRServo intake = null;
+    public Servo twistIntake = null;
 
 
 
@@ -70,16 +68,14 @@ public class TestingOpMode extends OpMode
      */
     @Override
     public void init() {
-        jawServo = hardwareMap.get(Servo.class, "jawServo");
-        lateralIntakeServo = hardwareMap.get(Servo.class, "lateralIntakeServo");
-        intake = hardwareMap.get(CRServo.class, "intake");
+        twistIntake = hardwareMap.get(Servo.class, "twistIntake");
+
+
 
         // Initialize the hardware variables. Note that the strings used here as parameters
         // to 'get' must correspond to the names assigned during the robot configuration
         // step (using the FTC Robot Controller app on the phone).
-       jawServo.setPosition(0.05);
-        lateralIntakeServo.setPosition(0);
-        intake.setPower(0.05);
+       twistIntake.setPosition(Constants.INTAKE_TWISTER_INIT); // no twist
 
 
 
@@ -108,20 +104,17 @@ public class TestingOpMode extends OpMode
     @Override
     public void loop() {
 
-        intake.setPower(0.85);
+
 
         if(gamepad1.a)
         {
-            jawServo.setPosition(Constants.JAW_CLOSED);
-            lateralIntakeServo.setPosition(Constants.LATERAL_INTAKE_LEFT);
 
+            twistIntake.setPosition(Constants.INTAKE_TWISTER_RIGHT);//right
             isOpen = true;
         }
          else if(gamepad1.b)
         {
-            jawServo.setPosition(Constants.JAW_OPEN);
-            lateralIntakeServo.setPosition(Constants.LATERAL_INTAKE_RIGHT);
-            intake.setPower(0);
+            twistIntake.setPosition(Constants.INTAKE_TWISTER_LEFT); //90deg left - towards servo
             isOpen = false;
         }
 
@@ -129,7 +122,7 @@ public class TestingOpMode extends OpMode
 
         // Show the elapsed game time and wheel power.
         telemetry.addData("Status", "Run Time: " + runtime.toString());
-         telemetry.addData("jaw ", jawServo.getPosition());
+         telemetry.addData("twist ", twistIntake.getPosition());
 
     }
 

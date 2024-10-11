@@ -39,8 +39,8 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
+import com.qualcomm.robotcore.util.Range;
 
-import org.firstinspires.ftc.robotcore.external.Const;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
@@ -86,7 +86,7 @@ public class TestTele extends OpMode
     enum GrabSample
     {
         OPEN_JAW,
-        MOVE_WRIST_LATERALLY,
+        MOVE_WRIST,
         INTAKE_ON,
     }
 
@@ -109,6 +109,8 @@ public class TestTele extends OpMode
     double leftStickX = 0;
     double leftStickY = 0;
     double rightStickX = 0;
+
+    double twistPos = 0;
 
 
 
@@ -178,9 +180,7 @@ public class TestTele extends OpMode
      */
     @Override
     public void loop() {
-        // Setup a variable for each drive wheel to save power level for telemetry
-        double leftPower;
-        double rightPower;
+        twistPos = intake.twistIntake.getPosition();
 
         // Retrieve Rotational Angles and Velocities
         YawPitchRollAngles orientation = imu.getRobotYawPitchRollAngles();
@@ -215,10 +215,7 @@ public class TestTele extends OpMode
         v1 = (rotY - rotX - rightStickX) / denominator; //frontRight
         v3 = (rotY + rotX - rightStickX) / denominator; // backRight
 
-        //robot.rightFront.setPower(v1);
-        //robot.leftFront.setPower(v2);
-        //robot.rightBack.setPower(v3);
-        //robot.leftBack.setPower(v4);
+
 
 
         double movement_y = -gamepad1.left_stick_y;
@@ -260,7 +257,7 @@ public class TestTele extends OpMode
             rightBack.setPower(br_power_raw);
             rightFront.setPower(frPowerRaw);
 
-            //commented out to test driving
+
             switch (grabSample) {
                 case OPEN_JAW: {
                     if (ButtonPress.isGamepad1_right_bumper_pressed()) {
@@ -270,10 +267,10 @@ public class TestTele extends OpMode
                         waitTimer1.reset();
                     }
 
-                        grabSample = GrabSample.MOVE_WRIST_LATERALLY;
+                        grabSample = GrabSample.MOVE_WRIST;
 
                 }
-                case MOVE_WRIST_LATERALLY: {
+                case MOVE_WRIST: {
                     //extend lift into pickup position
                     if(ButtonPress.isGamepad1_dpad_left_pressed())
                     {
@@ -285,7 +282,8 @@ public class TestTele extends OpMode
                     }
 
 
-                    grabSample = GrabSample.MOVE_WRIST_LATERALLY;
+
+                    grabSample = GrabSample.MOVE_WRIST;
                 }
                 case INTAKE_ON: {
                     intake.setIntakeSpeed(1);
@@ -298,6 +296,24 @@ public class TestTele extends OpMode
                 }
                 break;
             }
+
+
+            //this moves the intake to the right or left when the triggers are pressed
+            while(gamepad1.right_trigger > 0)
+            {
+                twistPos += 0.05;
+            }
+            while (gamepad1.left_trigger > 0 )
+            {
+                twistPos -= 0.05;
+            }
+
+            twistPos = Range.clip(twistPos, 0, 1);
+
+            intake.twistIntake.setPosition(twistPos);
+
+
+
             double newTime = getRuntime();
             double loopTime = newTime - oldTime;
             double frequency = 1 / loopTime;
@@ -322,6 +338,8 @@ public class TestTele extends OpMode
             telemetry.addData("Status", odo.getDeviceStatus());
             telemetry.addData("Pinpoint Frequency", odo.getFrequency()); //prints/gets the current refresh rate of the Pinpoint
             telemetry.addData("REV Hub Frequency: ", frequency); //prints the control system refresh rate
+            telemetry.addData("state:", grabSample);
+            telemetry.addData("twist position", twistPos);
             telemetry.update();
 
 
